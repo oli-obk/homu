@@ -70,8 +70,8 @@ def queue(repo_label):
         failed = len([x for x in pull_states if x.status == 'failure' or x.status == 'error']),
     )
 
-@get('/rollup')
-def rollup():
+@get('/rollup_branch')
+def rollup_branch():
     logger = g.logger.getChild('rollup')
 
     response.content_type = 'text/plain'
@@ -135,6 +135,14 @@ def rollup():
             failures.append(state.num)
         else:
             successes.append(state.num)
+
+    return successes, failures
+
+@get('/rollup')
+def rollup():
+    logger = g.logger.getChild('rollup')
+
+    successes, failures = rollup_branch()
 
     title = 'Rollup of {} pull requests'.format(len(successes))
     body = '- Successful merges: {}\n- Failed merges: {}'.format(
